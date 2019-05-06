@@ -13,7 +13,7 @@ You can use kowix for this purposes:
 * SharedMemory in **kawix/dhs** clusters
 * Shared code execution between clusters in **kawix/dhs**
 * Auto download and start a MongoDB instance with zero install configuration
-* MongoDB query,update,insert,remove ready-to-use API with chained relations, advanced query, and selectable projections 
+* MongoDB query,update,insert,remove ready-to-use API with chained relations, advanced query, selectable fields projections and limits by rules configuration (permissions/restricted fields, etc)
 
 
 NOTE: Nginx configuration require root privileges. If the project is not started with root, users need have privileges of run ```sudo``` without password
