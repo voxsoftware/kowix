@@ -1,0 +1,74 @@
+site:
+	id: 'kowix'
+	name: 'kowix'
+
+	hostnames: [
+		'kowix'
+		'kowix.kodhe.com'
+	]
+
+	globalprefixes: [
+		"/site/kowix"
+	]
+
+	routes: [
+		{
+			"path": "/api/function/c/*"
+			"file": "./src/functions"
+		}
+		{
+			"path": "/static/e/:id"
+			"static": "./public"
+			# required for static,plugins,middlewares
+			"method": "use"
+		}
+
+		{
+			"path": "/static"
+			"static": "./public"
+			# required for static,plugins,middlewares
+			"method": "use"
+		}
+
+		{
+			"path": "/code/v/:id"
+			"static":
+				path: "./public"
+				options:
+					maxAge: 0
+			# required for static,plugins,middlewares
+			"method": "use"
+		}
+
+		{
+			"path": "/code"
+			"static":
+				path: "./public"
+				options:
+					maxAge: 0
+			# required for static,plugins,middlewares
+			"method": "use"
+		}
+
+		{
+			"path": "/hello"
+			"file": "./src/hello"
+		}
+	]
+
+	backward:
+		kowixFunctions:
+			"file": "./src/functions"
+
+	defaultroute:
+		# import this file when route not defined
+		file: './src/default'
+
+	preload: ["./functions/loaders"]
+
+	crons: [
+		{
+			"name": "default"
+			"file": "./src/cron"
+		}
+	]
