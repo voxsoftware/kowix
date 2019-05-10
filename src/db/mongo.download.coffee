@@ -131,6 +131,7 @@ export invoke = (ctx, config)->
 		files= await fs.readdirAsync(mongodatadir)
 
 	uargs=[]
+	
 	if Os.arch() is "ia32" and files.length == 0
 		# si hay archivos, mongo puede determinar el tipo de storage, si no default to mmapv1
 		uargs.push("--storageEngine")
@@ -179,7 +180,7 @@ export invoke = (ctx, config)->
 	throw er  if er
 
 
-	return await dinvoke(ctx,config)
+	#return await dinvoke(ctx,config)
 
 export kawixDynamic=
 	time: 15000

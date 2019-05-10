@@ -238,14 +238,14 @@ Request.prototype.getResponseAsync = function () {
 			task.finish()
 		}
 
-		if (this.analizeResponse) {
-			this.originalReq = request(options, processFunction)
+		if (self.analizeResponse) {
+			self.originalReq = request(options, processFunction)
 		}
 		else {
-			this.originalReq = request(options)
-			this.originalReq.on("error", processFunction)
-			this.originalReq.on("response", processResponse)
-			this.originalReq.on("finish", task.finish.bind(task))
+			self.originalReq = request(options)
+			self.originalReq.on("error", processFunction)
+			self.originalReq.on("response", processResponse)
+			self.originalReq.on("finish", task.finish.bind(task))
 		}
 
 	}

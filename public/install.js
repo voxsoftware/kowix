@@ -8,5 +8,5 @@
 // El código principal está hecho en coffeescript, por tanto se cargará el loader
 // y el archivo de coffeescript
 
-import {register} from 'https://kwx.kodhe.com/x/v/0.3.13/std/coffeescript/register.js'
+import {register} from 'https://kwx.kodhe.com/x/v/0.4.0/std/coffeescript/register.js'
 import './install.coffee'

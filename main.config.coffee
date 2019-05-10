@@ -1,74 +1,43 @@
-site:
-	id: 'kowix'
-	name: 'kowix'
+import Path from 'path'
 
-	hostnames: [
-		'kowix'
-		'kowix.kodhe.com'
-	]
 
-	globalprefixes: [
-		"/site/kowix"
-	]
-
-	routes: [
+config=
+	name: 'kowix.d'
+	id: 'kowix.d'
+	cluster: [
 		{
-			"path": "/api/function/c/*"
-			"file": "./src/functions"
+			# address to listen
+			"address": "0.0.0.0:33016"
+			"purpose": "default"
+			"count": 'all'
 		}
 		{
-			"path": "/static/e/:id"
-			"static": "./public"
-			# required for static,plugins,middlewares
-			"method": "use"
-		}
-
-		{
-			"path": "/static"
-			"static": "./public"
-			# required for static,plugins,middlewares
-			"method": "use"
-		}
-
-		{
-			"path": "/code/v/:id"
-			"static":
-				path: "./public"
-				options:
-					maxAge: 0
-			# required for static,plugins,middlewares
-			"method": "use"
-		}
-
-		{
-			"path": "/code"
-			"static":
-				path: "./public"
-				options:
-					maxAge: 0
-			# required for static,plugins,middlewares
-			"method": "use"
-		}
-
-		{
-			"path": "/hello"
-			"file": "./src/hello"
+			# address to listen
+			"address": "0.0.0.0:44001"
+			"purpose": "tasks"
+			"count": 1
+			"env":
+				"CRON_ENABLED": 1
+				"MEMSHARING": 1
 		}
 	]
 
-	backward:
-		kowixFunctions:
-			"file": "./src/functions"
+	# per core
+	"maxqueuecount": 30
+	"maxconcurrent": 50000
 
-	defaultroute:
-		# import this file when route not defined
-		file: './src/default'
 
-	preload: ["./functions/loaders"]
-
-	crons: [
-		{
-			"name": "default"
-			"file": "./src/cron"
-		}
+	# folder for vhosts
+	include: [
+		"../*/app.config.*"
+		"../sites*/*/app.config.*"
 	]
+
+if process.env.PROJECTS_DIR
+	config.include= []
+	config.include.push Path.join(process.env.PROJECTS_DIR, '*.kwa')
+	config.include.push Path.join(process.env.PROJECTS_DIR, '/*/app.config.*')
+
+if process.env.DHS_ADDRESS
+	config.cluster[0].address= process.env.DHS_ADDRESS 
+export default config

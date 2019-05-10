@@ -56,7 +56,7 @@ state.db_reconnect= (ctx, config)->
 
 	time= Date.now()
 	while caching[dbu]
-		if Date.now() - time > 12000
+		if Date.now() - time > 20000
 			throw Exception.create("Timedout waiting database").putCode("TIMEDOUT")
 		await sleep 10
 

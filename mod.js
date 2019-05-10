@@ -26,7 +26,11 @@ var _start= async function(file){
 	if (kawix.KModule._virtualfile['/virtual/@kawix/dhs']){
 		await KModule.import("/virtual/@kawix/dhs/start")
 	}else{
-		await KModule.import("https://kwx.kodhe.com/x/v/0.3.25/dhs/start.js")
+		try{
+			await KModule.import("../@kawix/dhs/start.js")
+		}catch(e){
+			await KModule.import("https://kwx.kodhe.com/x/v/0.4.0/dhs/start.js")
+		}
 	}
 
 	
