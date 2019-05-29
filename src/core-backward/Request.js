@@ -193,8 +193,10 @@ Request.prototype.getResponseAsync = function () {
 	jar.setCookie(cookie, options.url)
 	options.jar= jar
 	*/
-	if (this.$cookie && this.$cookie.getJar)
-		options.jar = this.$cookie.getJar(options.url)
+	if (this.$cookie /*&& this.$cookie.getJar*/){
+		options.jar = this.$cookie //.getJar(options.url)
+		//console.info(options.jar)
+	}
 
 
 

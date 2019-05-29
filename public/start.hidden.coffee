@@ -3,6 +3,7 @@ import Net from 'net'
 import fs from 'fs'
 import Os from 'os'
 import Path from 'path'
+import Registry from 'https://kwx.kodhe.com/x/v/0.4.0/std/package/registry.js'
 pty = null 
 
 
@@ -18,12 +19,37 @@ class Program
 
 		# init node-pty 
 		if Os.platform() is "linux"
-			pty= await import('npmi://node-pty@0.8.1')
+
+			#pty= await import('npm://node-pty@0.8.1')
+			registry= new Registry()
+			moduledesc= await registry.resolve('node-pty@0.8.1')
+			path= Path.join(moduledesc.folder, "build")
+			if not fs.existsSync(path)
+				fs.mkdirSync(path)
+			
+			path= Path.join(path, "Release")
+			if not fs.existsSync(path)
+				fs.mkdirSync(path)
+			
+			path= Path.join(path, "pty.node")
+			if not fs.existsSync(path)
+				content= await import("./pty.node")
+				content= content.default ? content 
+				fs.writeFileSync(path, content)
+			
+			# require 
+			pty= require(moduledesc.folder)
+			
+
+
 		else 
 			pty= await import('npmi://node-pty-prebuilt@0.7.6')
 
 		prg= new Program()
 		prg.main()
+
+
+		
 
 	main: ()->
 		try

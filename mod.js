@@ -29,7 +29,7 @@ var _start= async function(file){
 		try{
 			await KModule.import("../@kawix/dhs/start.js")
 		}catch(e){
-			await KModule.import("https://kwx.kodhe.com/x/v/0.4.0/dhs/start.js")
+			await KModule.import("https://kwx.kodhe.com/x/v/0.4.5/dhs/start.js")
 		}
 	}
 

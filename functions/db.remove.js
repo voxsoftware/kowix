@@ -40,32 +40,26 @@ var F= async function(body){
     
     
     // get rules ...
-    var rule= siteContext.userFunction("rules." + options.tablename + ".delete")
-    var rules=[], rulesl=[], rls
-    var RuleLimitClass, ruleLimit
-    
-    if(await rule.isAvailable()){
-        rls= await rule.execute()
-        for(var i=0;i<rls.length;i++)
-            rules.push(rls[i])
+    var rules, rulesl, ruleLimit
+    rulesl = []
+    var rulefile = siteContext.constants.dbrules && siteContext.constants.dbrules.verification
+    body._type = 'remove'
+
+    if (rulefile) {
+        rules = await siteContext.userFunction(rulefile).invoke(body)
     }
-    
-    rule= siteContext.userFunction("rules.delete")
-    if(await rule.isAvailable()){
-        rls= await rule.execute()
-        for(var i=0;i<rls.length;i++)
-            rules.push(rls[i])
+    else {
+        rules = []
     }
-    
-    rule= siteContext.userFunction("rules.limit." + options.tablename + ".delete")
-    if(await rule.isAvailable()){
-        
-        // execute rule Limit 
-        RuleLimitClass= await global.UserFunction("rule.limit").invoke()
-        ruleLimit= new RuleLimitClass(await rule.execute(), siteContext)
+
+    rulefile = siteContext.constants.dbrules && siteContext.constants.dbrules.limits
+    if (rulefile) {
+        ruleLimit = await siteContext.userFunction(rulefile).invoke(body)
+        RuleLimitClass = await global.UserFunction("rule.limit").invoke()
+        ruleLimit = new RuleLimitClass(ruleLimit, siteContext)
         rulesl.push(ruleLimit)
-        
     }
+
     
     
     
@@ -85,7 +79,8 @@ var F= async function(body){
 	}
 	options.getData= getData
 	
-	var hardDelete
+    var hardDelete
+    hardDelete = siteContext.constants.db && siteContext.constants.db.harddelete
 	for(var i=0;i<rulesl.length;i++){
         rulesl[i].checkUpdate(options,q)
     }

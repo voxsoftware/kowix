@@ -41,31 +41,23 @@ var F= async function(body){
 
 
     // get rules ...
-    var rule= siteContext.userFunction("rules." + options.tablename + ".edit")
-    var rules=[], rulesl=[], rls
-    var RuleLimitClass, ruleLimit
+    var rules, rulesl, ruleLimit
+    rulesl = []
+    var rulefile = siteContext.constants.dbrules && siteContext.constants.dbrules.verification
+    body._type = 'update'
 
-    if(await rule.isAvailable()){
-        rls= await rule.execute()
-        for(var i=0;i<rls.length;i++)
-            rules.push(rls[i])
+    if (rulefile) {
+        rules = await siteContext.userFunction(rulefile).invoke(body)
     }
-
-    rule= siteContext.userFunction("rules.edit")
-    if(await rule.isAvailable()){
-        rls= await rule.execute()
-        for(var i=0;i<rls.length;i++)
-            rules.push(rls[i])
+    else {
+        rules = []
     }
-
-    rule= siteContext.userFunction("rules.limit." + options.tablename + ".edit")
-    if(await rule.isAvailable()){
-
-        // execute rule Limit
-        RuleLimitClass= await global.UserFunction("rule.limit").invoke()
-        ruleLimit= new RuleLimitClass(await rule.execute(), siteContext)
+    rulefile = siteContext.constants.dbrules && siteContext.constants.dbrules.limits
+    if (rulefile) {
+        ruleLimit = await siteContext.userFunction(rulefile).invoke(body)
+        RuleLimitClass = await global.UserFunction("rule.limit").invoke()
+        ruleLimit = new RuleLimitClass(ruleLimit, siteContext)
         rulesl.push(ruleLimit)
-
     }
 
 

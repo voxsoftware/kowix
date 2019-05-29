@@ -36,6 +36,29 @@ var F= async function(body){
 
 
     // get rules ...
+    var rules, rulesl, ruleLimit 
+    rulesl = []
+    var rulefile = siteContext.constants.dbrules && siteContext.constants.dbrules.verification
+    body._type = 'insert'
+
+    if(rulefile){        
+        rules= await siteContext.userFunction(rulefile).invoke(body)
+        console.info("RULES: ", rules)
+    }
+    else {
+        rules = []
+    }
+    rulefile = siteContext.constants.dbrules && siteContext.constants.dbrules.limits
+    if (rulefile) {
+        ruleLimit = await siteContext.userFunction(rulefile).invoke(body)
+        RuleLimitClass = await global.UserFunction("rule.limit").invoke()
+        ruleLimit = new RuleLimitClass(ruleLimit, siteContext)
+        rulesl.push(ruleLimit)
+    }
+
+
+
+    /*
     var rule= siteContext.userFunction("rules." + options.tablename + ".insert")
     var rules=[], rulesl=[], rls
     var RuleLimitClass, ruleLimit
@@ -52,6 +75,7 @@ var F= async function(body){
         for(var i=0;i<rls.length;i++)
             rules.push(rls[i])
     }
+    
 
     rule= siteContext.userFunction("rules.limit." + options.tablename + ".insert")
     if(await rule.isAvailable()){
@@ -59,9 +83,12 @@ var F= async function(body){
         // execute rule Limit
         RuleLimitClass= await global.UserFunction("rule.limit").invoke()
         ruleLimit= new RuleLimitClass(await rule.execute(), siteContext)
+        
         rulesl.push(ruleLimit)
 
     }
+    */
+
 
     var insert, response=[]
     if(ins instanceof Array)
