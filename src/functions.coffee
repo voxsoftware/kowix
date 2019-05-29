@@ -115,6 +115,11 @@ export invoke= (env, ctx)->
 			if result and constants.bodyTransform
 				result= await local.userFunction(constants.bodyTransform).invoke(result)
 
+
+			if env.type is "upgrade"
+				# in upgrade don't execute normally 
+				return 
+
 			if env.reply and env.response
 				env.reply.send result  if not env.response.finished
 		catch e
