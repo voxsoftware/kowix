@@ -10,30 +10,17 @@ var _start= async function(file){
 		isdirectory: true
 	})
 	
-	/*var f= '../@kawix/dhs/start.js'
 	
-	if(__filename.startsWith("http:") || __filename.startsWith("https:")){
-		await KModule.import(f)
-	}else{
-		f= Path.join(__dirname, f)
-		if(!fs.existsSync(f)){
-			await KModule.import("https://kwx.kodhe.com/x/v/0.3.25/dhs/start.js")
-		}else{
-			await KModule.import(f)
-		}
-	}*/
-
-	if (kawix.KModule._virtualfile['/virtual/@kawix/dhs']){
-		await KModule.import("/virtual/@kawix/dhs/start")
-	}else{
-		try{
-			await KModule.import("../@kawix/dhs/start")
-		}catch(e){
-			console.log("Loading from web ...", e)
-			await KModule.import("https://kwx.kodhe.com/x/v/0.5.2/dhs/start")
-		}
+	if (!kawix.KModule._virtualfile['/virtual/@kawix/dhs']){
+		await KModule.import("https://kwx.kodhe.com/x/v/0.5.3/std/dist/stdlib")
+		await KModule.import("https://kwx.kodhe.com/x/v/0.5.3/kivi/dist/kivi")
+		await KModule.import("https://kwx.kodhe.com/x/v/0.5.3/gix/dist/gix")
+		await KModule.import("https://kwx.kodhe.com/x/v/0.5.3/dhs/dist/dhs")
 	}
 
+	await KModule.import("/virtual/@kawix/dhs/start")
+		
+	
 	
 }
 export var start= async function(){
