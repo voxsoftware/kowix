@@ -68,21 +68,35 @@ export invoke= (env, ctx)->
 
 
 	local= await getSiteContext(env, ctx, yes)
-	if process.env.DHS_NGINX_ENABLED
-		if (ctx.site.webserver ? ctx.site.nginx) or ctx.site.name is "kowix"
-			if not local.publicContext.__nginx
+	config = ctx.server.config.readCached() 
+	nginx_enabled = process.env.DHS_NGINX_ENABLED  ? config.nginx
+
+	if nginx_enabled
+		c1 = yes 
+		if (ctx.site.webserver ? ctx.site.nginx) or config.nginx 
+
+			kowix= await local.getSiteContext("kowix")
+			if not (ctx.site.webserver ? ctx.site.nginx) 
+				c1 = (not kowix.publicContext.__nginx)
+			else 
+				c1 = (not local.publicContext.__nginx)
+
+
+			if c1 
 				while local.publicContext.__nginx_
 					await core.VW.Task.sleep 4
 				local.publicContext.__nginx_ = yes
 				try
-					kowix= await local.getSiteContext("kowix")
 					if not kowix.publicContext.nginx
 						Nginx= await kowix.userFunction("nginx/config").invoke()
 						nginx= kowix.publicContext.nginx = new Nginx()
 					else
 						nginx= kowix.publicContext.nginx
 
-					await nginx.addSite(ctx.site)
+					if (ctx.site.webserver ? ctx.site.nginx) 
+						await nginx.addSite(ctx.site)
+					else 
+						await nginx.writeDefaultConfig()
 					local.publicContext.__nginx= yes
 				catch e
 					throw e

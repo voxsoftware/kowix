@@ -50,9 +50,9 @@ class Program
 
 			console.info(" > Kowix descargado, ahora puede descargar proyectos a la carpeta:  ", path)
 
-			out= Path.join path, "start.clustered.js"
+			out= Path.join path, "start.clustered.kwe"
 			await fs.writeFileAsync out, """
-			import reg from 'https://kwx.kodhe.com/x/v/0.3.18/std/package/kwa/register.js'
+			import reg from 'https://kwx.kodhe.com/x/v/0.4.0/std/package/kwa/register.js'
 			import Path from 'path'
 			init()
 			async function init(){
@@ -63,9 +63,9 @@ class Program
 			}
 			"""
 
-			out= Path.join path, "start.js"
+			out= Path.join path, "start.kwe"
 			await fs.writeFileAsync out, """
-			import reg from 'https://kwx.kodhe.com/x/v/0.3.18/std/package/kwa/register.js'
+			import reg from 'https://kwx.kodhe.com/x/v/0.4.0/std/package/kwa/register.js'
 			import Path from 'path'
 			init()
 			async function init(){

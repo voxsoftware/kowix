@@ -1,6 +1,6 @@
 
 import fs from './_fs'
-import uniqid from '/virtual/@kawix/std/util/uniqid/mod.js'
+import uniqid from '/virtual/@kawix/std/util/uniqid'
 #import moment from './moment'
 import Exception from '../exception'
 import pcontext from '../publicContext'

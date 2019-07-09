@@ -1,3 +1,3 @@
-import def from '/virtual/@kawix/std/fs/mod.js'
+import def from '/virtual/@kawix/std/fs/mod'
 export default def
-export * from '/virtual/@kawix/std/fs/mod.js'
+export * from '/virtual/@kawix/std/fs/mod'

@@ -15,13 +15,14 @@ class NginxSite
 
 
 	writeDefaultConfig: ()->
-
+		
 		if @_writed
 			return
 
 		if Os.platform() is "win32"
 			return NginxSite.local.Exception.create("win32 is not supported").putCode("NOT_IMPLEMENTED")
 
+		
 
 		folder= "/nginx"
 		if not fs.existsSync(folder)
@@ -155,23 +156,42 @@ class NginxSite
 		if fs.existsSync(name)
 			content1= await fs.readFileAsync(name)
 
-		config= NginxSite.local.context.server.config.readCached()
+		dhs_config = NginxSite.local.context.server.config
+		config= dhs_config.readCached()
 		address= config.cluster[0]?.address ? config.address
 		address= address.replace "0.0.0.0", "127.0.0.1"
 		if address.startsWith("127.0.0.1")
 			address= "http://#{address}"
 
 		sslconfig= ''
-		nginxconfig= site.webserver ? site.nginx ? {}
+		nginxconfig= Object.assign {}, site.webserver ? site.nginx ? {}, config.nginx
 
 
+		client_certificate = no 
+		client_certificate_str = ''
 
+		
 		if nginxconfig.ssl
 			sslconfig= """
 			listen 443 ssl;
 			ssl_certificate #{nginxconfig.ssl.crt ? Path.join(__dirname, "kowix.dev.crt")};
 			ssl_certificate_key #{nginxconfig.ssl.key ? Path.join(__dirname, "kowix.dev.key")};
 			"""
+
+			if  nginxconfig.ssl.requestCertificate
+				client_certificate = yes 
+				cafile = dhs_config.resolvePath(nginxconfig.ssl.ca, dhs_config.readCached())
+				sslconfig += """
+			
+			ssl_client_certificate #{cafile};
+			ssl_verify_client optional;
+				"""
+
+				client_certificate_str = """
+			proxy_set_header x-client-crt "$ssl_client_escaped_cert";
+			proxy_set_header x-client-crt-verify "$ssl_client_verify";
+			proxy_set_header x-client-crt-subject "$ssl_client_s_dn";
+				"""
 
 		rootconfig= ""
 		if nginxconfig.rootdir
@@ -213,6 +233,8 @@ class NginxSite
 
 			proxy_set_header Upgrade $http_upgrade;
 			proxy_set_header Connection $connection_upgrade;
+			
+			#{client_certificate_str}
 
 
 			client_max_body_size #{nginxconfig.client_max_body_size ? "5000M"};

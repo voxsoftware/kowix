@@ -1,31 +1,24 @@
 
 #import loader from './loaders'
 
-F= ()->
+export kowixInvoke= (local)->
 
-
-	Mongo= F.global.Mongo
-	Mingo= F.global.Mingo
-
-
-
+	Mongo= local.Mongo
+	# Mingo= local.Mingo
 	if not Mongo
-		Mongo= await F.global.UserContext.require("mongodb","3.0.10")
+		Mongo= await local.UserContext.require("mongodb","3.1.13")
 		Mongo.ObjectID.prototype.toJSON= ()->
 			return
 				$oid: this.toString()
-		F.global.addGlobal 'Mongo', Mongo
-		F.global.publicContext.Mongo= Mongo
+		local.addGlobal 'Mongo', Mongo
+		local.publicContext.Mongo= Mongo
 
-
+	###
 	if not Mingo
-		Mingo= await F.global.UserContext.require("mingo","2.2.2")
-		F.global.addGlobal 'Mingo', Mingo
-		F.global.publicContext.Mingo= Mongo
+		Mingo= await local.UserContext.require("mingo","2.2.2")
+		local.addGlobal 'Mingo', Mingo
+		local.publicContext.Mingo= Mongo
+	### 
 
 	return true
 
-
-module.exports= (global)->
-	F.global= global
-	F
