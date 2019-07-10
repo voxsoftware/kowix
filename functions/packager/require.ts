@@ -2,7 +2,7 @@ var F, Fs;
 
 import Path from 'path'
 import fs from 'fs'
-import KawixHttp from '/virtual/@kawix/std/http/mod.js'
+import KawixHttp from '/virtual/@kawix/std/http/mod'
 
 declare var core 
 Fs = core.System.IO.Fs

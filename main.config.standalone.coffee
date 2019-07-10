@@ -20,6 +20,7 @@ config=
 	"maxqueuecount": 30
 	"maxconcurrent": 50000
 
+	nginx : {}
 
 	# folder for vhosts
 	include: [

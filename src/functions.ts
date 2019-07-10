@@ -37,7 +37,7 @@ export var getSiteContext = async function(env, ctx, reusable = false) {
 		constantsc[ctx.site.id] = constants;
 	}
 	ctx.constants = constants;
-	if (typeof core === undefined) {
+	if (typeof core === 'undefined') {
 		// a backward-compatibility
 		await import(__dirname + '/core-backward/mod');
 	}
