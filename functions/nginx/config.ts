@@ -2,7 +2,7 @@ var NginxSite;
 
 import Os from 'os';
 import Path from 'path';
-import fs from '/virtual/@kawix/std/fs/mod.js';
+import fs from '/virtual/@kawix/std/fs/mod';
 import Child from 'child_process';
 
 NginxSite = class NginxSite {

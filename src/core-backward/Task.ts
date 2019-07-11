@@ -37,7 +37,7 @@ Task = class Task extends Promise<any> {
 		} else {
 			value = this.result
 		}
-		return this.def.resolves(value)
+		return this.def.resolve(value)
 	}
 
 }
