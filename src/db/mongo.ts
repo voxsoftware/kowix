@@ -1,6 +1,8 @@
 var Invoke, MongoClient, compareerror, deferred, ref, ref1, secureInvoke, sleep, state;
 
-import mongo from 'npm://mongodb@3.1.13'
+import 'npm://mongodb@3.1.13'
+
+import mongo from 'mongodb'
 import Exception from '../exception'
 import publicContext from '../publicContext'
 

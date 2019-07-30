@@ -26,14 +26,15 @@ config=
 	"maxqueuecount": 30
 	"maxconcurrent": 50000
 
-	nginx : {}
+	#nginx : {}
 	
 	# folder for vhosts
 	include: [
 		"../*/app.config.*"
 		"../sites*/*/app.config.*"
 	]
-
+if process.env.KOWIX_SOCKET_NAME
+	config.name = config.id = process.env.KOWIX_SOCKET_NAME
 if process.env.PROJECTS_DIR
 	config.include= []
 	config.include.push Path.join(process.env.PROJECTS_DIR, '*.kwa')

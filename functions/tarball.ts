@@ -1,10 +1,10 @@
 var deferred;
 
 import Path from 'path'
-import Tar from '/virtual/@kawix/std/compression/tar.js'
-import Glob from '/virtual/@kawix/dhs/glob/mod.js'
-import fs from '/virtual/@kawix/std/fs/mod.js'
-import KawixHttp from '/virtual/@kawix/std/http/mod.js'
+import Tar from '/virtual/@kawix/std/compression/tar'
+import Glob from '/virtual/@kawix/dhs/glob/mod'
+import fs from '/virtual/@kawix/std/fs/mod'
+import KawixHttp from '/virtual/@kawix/std/http/mod'
 
 deferred = function() {
 	var def

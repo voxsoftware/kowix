@@ -1,9 +1,11 @@
 var checkFileExists, deferred, ref, ref1, sleep, state, y;
+import 'npm://mongodb@3.1.13'
+import 'npm://axios@^0.18.0'
 
 import {
 	MongoClient
-} from 'npm://mongodb@3.1.13'
-import axios from 'npm://axios@^0.18.0'
+} from 'mongodb'
+import axios from 'axios'
 import publicContext from '../publicContext'
 import {
 	invoke as dinvoke

@@ -1,14 +1,13 @@
-var Exception;
-
-Exception = class Exception extends Error {
+import * as Types from './typing'
+export class Exception extends Error  implements Types.Exception{
 	code:string 
-	static create(message, innerException) {
-		var e;
-		e = new Exception(message);
+	static create(message: string, innerException?: any) {
+		var e
+		e = new Exception(message)
 		if (innerException) {
 			e.innerException = innerException;
 		}
-		return e;
+		return e
 	}
 
 	putCode(code) {
@@ -30,6 +29,5 @@ Exception = class Exception extends Error {
 		throw this;
 	}
 
-};
-
-export default Exception;
+}
+export default Exception

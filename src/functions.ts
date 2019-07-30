@@ -1,33 +1,26 @@
-var constantsc, deferred, parsers;
+var constantsc,  parsers;
 
 import SiteContext from './siteContext'
-import Registry from './lib/_registry'
-import QueryString from 'querystring'
-import Url from 'url'
-
 import {
 	invoke as bodyParser
 } from './lib/body.parser'
+import * as DhsTypes from '/virtual/@kawix/dhs/src/typings'
+
 
 constantsc = {}
 parsers = null
 
-deferred = function() {
-	var def;
-	def = {};
-	def.promise = new Promise(function(a, b) {
-		def.resolve = a;
-		return def.reject = b;
-	});
-	return def;
-};
-
 declare var core
-export var getSiteContext = async function(env, ctx, reusable = false) {
-	var constants, e, local, value;
+export var kawixDynamic = {
+	time: 15000
+}
+export var getSiteContext = async function (env: DhsTypes.Request, ctx: DhsTypes.Context, reusable:boolean = false) {
+	var constants, e, local:SiteContext, value
 	// load context
-	local = SiteContext.reuse(ctx, env, reusable);
-	local.__bodyparser = bodyParser;
+	local = SiteContext.reuse(ctx, env, reusable)
+	local.__bodyparser = bodyParser
+
+
 	constants = constantsc[ctx.site.id];
 	if (!(constants != null ? constants._time : void 0) || (Date.now() - constants._time > 10000)) {
 		await local._loadHomeDir();
@@ -39,29 +32,27 @@ export var getSiteContext = async function(env, ctx, reusable = false) {
 	ctx.constants = constants;
 	if (typeof core === 'undefined') {
 		// a backward-compatibility
-		await import(__dirname + '/core-backward/mod');
+		await import(__dirname + '/core-backward/mod')
 	}
 	if (constants.preload && (!local.publicContext.__loaded)) {
 		while (local.publicContext.__loading) {
 			await core.VW.Task.sleep(4);
 		}
 		try {
-			local.publicContext.__loading = true;
-			await local.userFunction(constants.preload).invoke();
-			local.publicContext.__loaded = true;
+			local.publicContext.__loading = true
+			await local.userFunction(constants.preload).invoke()
+			local.publicContext.__loaded = true
 		} catch (error) {
 			e = error;
 			throw e;
 		} finally {
-			local.publicContext.__loading = false;
+			local.publicContext.__loading = false
 		}
 	}
 	return local;
-};
+}
 
-export var kawixDynamic = {
-	time: 15000
-};
+
 
 export var invoke = async function(env, ctx) {
 	var Nginx, body, c1, config, constants, e, kowix, local, name, nginx, nginx_enabled, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, result;
@@ -70,7 +61,7 @@ export var invoke = async function(env, ctx) {
 	nginx_enabled = (ref = process.env.DHS_NGINX_ENABLED) != null ? ref : config.nginx;
 	if (nginx_enabled) {
 		c1 = true;
-		if (((ref1 = ctx.site.webserver) != null ? ref1 : ctx.site.nginx) || config.nginx) {
+		if (((ref1 = ctx.site.webserver) != null ? ref1 : ctx.site.nginx) || nginx_enabled) {
 			kowix = (await local.getSiteContext("kowix"));
 			if (!((ref2 = ctx.site.webserver) != null ? ref2 : ctx.site.nginx)) {
 				c1 = !kowix.publicContext.__nginx;
@@ -114,6 +105,7 @@ export var invoke = async function(env, ctx) {
 			}
 			body = env.body || ((ref7 = env.request) != null ? ref7.query : void 0);
 			if (body && (Object.keys(body).length > 0) && constants.bodyAnalyze) {
+				
 				body = (await local.userFunction(constants.bodyAnalyze).invoke(body));
 			}
 		}

@@ -1,7 +1,12 @@
-import Moment from 'npm://moment-timezone@0.5.25'
+import 'npm://moment-timezone@0.5.25'
+import Moment from 'moment-timezone'
 
-export var kowixInvoke = function(local, body) {
+import * as Types from '../src/typing'
+
+export var kowixInvoke = function(local: Types.SiteContext, body: any) {
 	var d, moment, ref, ref1, timezone;
+
+
 	timezone = (ref = body != null ? body.timezone : void 0) != null ? ref : "UTC";
 	moment = Moment.utc();
 	if (body != null ? body.timezone : void 0) {
