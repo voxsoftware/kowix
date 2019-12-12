@@ -3,6 +3,7 @@ var F, Fs;
 import Path from 'path'
 import fs from 'fs'
 import KawixHttp from '/virtual/@kawix/std/http/mod'
+import crypto from 'crypto'
 
 declare var core 
 Fs = core.System.IO.Fs
@@ -155,8 +156,10 @@ F = async function(body) {
 			if (!body.path) {
 				throw global.Exception.create(`${opath} cannot be resolved`).putCode("INVALID_PATH");
 			}
-			path = body.path;
-			fname = body.path.replace(/\//ig, '_') + ".js";
+			path = body.path
+			// MD5 cache 
+			fname =  crypto.createHash("md5").update(body.path).digest('hex') + ".js"
+			//fname = body.path.replace(/\//ig, '_') + ".js"
 			file = Path.join(cache, fname);
 			if (!body.force) {
 				if ((await F.checkFileExists(file))) {

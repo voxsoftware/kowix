@@ -92,7 +92,7 @@ NginxSite = class NginxSite {
 		}
 		dhs_config = NginxSite.local.context.server.config;
 		config = dhs_config.readCached();
-		address = (ref = (ref1 = config.cluster[0]) != null ? ref1.address : void 0) != null ? ref : config.address;
+		address = (ref = (ref1 = config.cluster && config.cluster[0]) != null ? ref1.address : void 0) != null ? ref : config.address;
 		address = address.replace("0.0.0.0", "127.0.0.1");
 		if (address.startsWith("127.0.0.1")) {
 			address = `http://${address}`;
@@ -117,7 +117,74 @@ NginxSite = class NginxSite {
 		head = "\nmap $http_upgrade $connection_upgrade {\n		default upgrade;\n		'' close;\n}";
 		generate = function(host) {
 			var content, ref10, ref11, ref12, ref6, ref7, ref8, ref9;
-			return content = `\nserver {\n		listen 80;\n		${sslconfig}\n		${rootconfig}\n\n		server_name ${(ref6 = (ref7 = host != null ? host.name : void 0) != null ? ref7 : host != null ? host.host : void 0) != null ? ref6 : host};\n		proxy_buffering off;\n		proxy_buffer_size 8k;\n		proxy_set_header Host $host;\n		proxy_set_header X-Real-IP $remote_addr;\n		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n		proxy_set_header X-Forwarded-Proto $scheme;\n		proxy_set_header X-Nginx-url $request_uri;\n\n		proxy_set_header Upgrade $http_upgrade;\n		proxy_set_header Connection $connection_upgrade;\n		\n		${client_certificate_str}\n\n\n		client_max_body_size ${(ref8 = nginxconfig.client_max_body_size) != null ? ref8 : "5000M"};\n\n		proxy_connect_timeout ${(ref9 = nginxconfig.connect_timeout) != null ? ref9 : "600"};\n		proxy_send_timeout ${(ref10 = nginxconfig.send_timeout) != null ? ref10 : "600"};\n		proxy_read_timeout ${(ref11 = nginxconfig.read_timeout) != null ? ref11 : "600"};\n		send_timeout ${(ref12 = nginxconfig.send_timeout) != null ? ref12 : "600"};\n\n\n\n		location ~ /\:\:(.*)/(.*){\n				proxy_pass http://127.0.0.1:$1/$2$is_args$args;\n		}\n\n		location ~ /\:\:(.*){\n				proxy_pass http://127.0.0.1:$1/$is_args$args;\n		}\n\n		location / {\n				proxy_pass ${address};\n		}\n}\n\n`;
+			return content = `\nserver {
+				listen 80;
+				${sslconfig}
+				${rootconfig}
+				
+				server_name ${(ref6 = (ref7 = host != null ? host.name : void 0) != null ? ref7 : host != null ? host.host : void 0) != null ? ref6 : host};
+				proxy_buffering off;
+				proxy_buffer_size 8k;
+				proxy_set_header Host $host;
+				proxy_set_header X-Real-IP $remote_addr;
+				proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+				proxy_set_header X-Forwarded-Proto $scheme;
+				proxy_set_header X-Nginx-url $request_uri;
+				
+				proxy_set_header Upgrade $http_upgrade;
+				proxy_set_header Connection $connection_upgrade;
+				
+				${client_certificate_str}
+				
+				
+				client_max_body_size ${(ref8 = nginxconfig.client_max_body_size) != null ? ref8 : "5000M"};
+				
+				proxy_connect_timeout ${(ref9 = nginxconfig.connect_timeout) != null ? ref9 : "600"};
+				proxy_send_timeout ${(ref10 = nginxconfig.send_timeout) != null ? ref10 : "600"};
+				proxy_read_timeout ${(ref11 = nginxconfig.read_timeout) != null ? ref11 : "600"};
+				send_timeout ${(ref12 = nginxconfig.send_timeout) != null ? ref12 : "600"};
+				
+				location ~ /\:\:(.*)/(.*){
+					proxy_pass http://127.0.0.1:$1/$2$is_args$args;
+				}
+				
+				location ~ /\:\:(.*){
+					proxy_pass http://127.0.0.1:$1/$is_args$args;
+				}
+				
+				location / {
+					proxy_pass ${address};
+				}
+
+				location ~* ^/__internal_redirect/(.*?)/(.*?)/(.*) {
+                        # Do not allow people to mess with this location directly
+                        # Only internal redirects are allowed
+                        internal;
+
+
+                        # Extract download url from the request
+
+                        set $download_uri $3;
+                        set $download_host $2;
+
+                        # Compose download url
+                        set $download_url $1://$download_host/$download_uri$is_args$args;
+
+                        # Set download request headers
+                        proxy_set_header Host $download_host;
+                        proxy_set_header Authorization '';
+
+
+                        # Do not touch local disks when proxying 
+                        # content to clients
+                        proxy_max_temp_file_size 0;
+                        resolver 8.8.8.8;
+                        # Download the file and send it to client
+                        proxy_pass $download_url;
+                        #return 302 $download_url;
+                }
+
+			}`;
 		};
 		generated = [];
 		if ((ref6 = site.hostnames) != null ? ref6.length : void 0) {

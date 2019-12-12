@@ -13,12 +13,12 @@ Mod = {
 		state = Util.state();
 		if (!state.jsonParser) {
 			state.jsonParser = bodyParser.json({
-				limit: '5mb'
+				limit: '50mb'
 			});
 		}
 		if (!state.urlencodedParser) {
 			state.urlencodedParser = bodyParser.urlencoded({
-				limit: '5mb'
+				limit: '50mb'
 			});
 		}
 		def = Util.deferred();

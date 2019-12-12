@@ -1,13 +1,16 @@
-var execute;
-
-execute = async function(local, promises, site, body) {
-	var ctx, e, task;
+import * as Types from '../src/typing'
+var execute
+execute = async function(local: Types.SiteContext, promises, site, body) {
 	if (!local.publicContext.cronExecuting[site.id]) {
+		var e, task;
 		try {
 			console.log(` > [kowix] Starting cron ${site.id}`);
 			local.publicContext.cronExecuting[site.id] = true;
-			ctx = (await local.getSiteContext(site.id));
-			task = ctx.userFunction("cron.0tasks").invoke(body);
+			let ctx = await local.getSiteContext(site.id)
+			let method = ctx.userFunction("cron.0tasks")
+			if(method.isAvailable())
+				await method.invoke(body)
+
 			return (await task);
 		} catch (error) {
 			e = error;

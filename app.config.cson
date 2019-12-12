@@ -9,6 +9,7 @@ site:
 
 	globalprefixes: [
 		"/site/kowix"
+		"/dhs.kowix"
 	]
 
 	routes: [

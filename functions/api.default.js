@@ -25,6 +25,17 @@ F = async function(body = {}) {
 		}
 		return (await global.userFunction("packager/require").invoke(body));
 	}
+	else if(parts[0] == "bundle" && parts.length == 2){
+		// get by sha1
+		let method = "packager/bundle"
+		let sha1 = parts[1]
+		if(sha1 && sha1.startsWith("group.")){
+			method = "packager/group"
+		}
+		return await global.userFunction(method).invoke(Object.assign({}, body, {
+			sha1
+		}))
+	}
 };
 
 module.exports = function(global) {

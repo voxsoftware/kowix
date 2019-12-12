@@ -14,6 +14,7 @@ export interface UserFunction{
     invoke(body?: any): any 
     execute(body?:any): any 
     load(): this 
+    isAvailable(): boolean
 }
 
 

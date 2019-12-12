@@ -100,6 +100,10 @@ export class SiteContext implements Types.SiteContext{
 		return DynamicMethod.get(name, this)
 	}
 
+	invokeMethod(name, body): any {
+		return DynamicMethod.get(name, this).invoke(body)
+	}
+
 	UserFunction(name) : Types.UserFunction {
 		// dynamic method
 		return DynamicMethod.get(name, this);

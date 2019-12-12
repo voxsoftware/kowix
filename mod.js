@@ -3,27 +3,32 @@ import Path from 'path'
 export var configfile = __dirname + "/app.config"
 
 var _start= async function(file, onlyserver){
-	
+
 	await loadDhs(file)
-	await KModule.import("/virtual/@kawix/dhs/src/mod")	
+	await KModule.import("/virtual/@kawix/dhs/src/mod")
 
 	var Service = (await KModule.import("/virtual/@kawix/dhs/src/service")).default
 	var Config = (await KModule.import("/virtual/@kawix/dhs/src/config")).default
-	
+
 	var service = new Service(new Config(process.env.DHS_CONFIG))
 	if(!onlyserver)
 		await service.start()
-	return service 
-	
+	return service
+
 }
 
 
 export var getDhsServer = async function () {
-	var file = module.realPathResolve('main.config')
+	var file = module.realPathResolve('main.config.cluster')
 	return await _start(file, true)
 }
 export var getStandaloneDhsServer = async function () {
-	var file = module.realPathResolve('main.config.standalone')
+	var file = module.realPathResolve('main.config.default')
+	return await _start(file, true)
+}
+
+export var getSingleProcessDhsServer = async function () {
+	var file = module.realPathResolve('main.config.single')
 	return await _start(file, true)
 }
 
@@ -32,9 +37,7 @@ export var getStandaloneDhsServer = async function () {
 export async function loadDhs(file){
 
 	if(file){
-		if (!process.env.DHS_CONFIG) {
-			process.env.DHS_CONFIG = file
-		}
+		process.env.DHS_CONFIG = file
 	}
 
 	KModule.addVirtualFile("kowix", {
@@ -63,21 +66,34 @@ export async function loadDhs(file){
 
 
 		} else {
-			var version = global.kawix.version
-			await KModule.import("https://kwx.kodhe.com/x/v/" + version + "/std/dist/stdlib")
-			await KModule.import("https://kwx.kodhe.com/x/v/" + version + "/kivi/dist/kivi")
-			await KModule.import("https://kwx.kodhe.com/x/v/" + version + "/gix/dist/gix")
-			await KModule.import("https://kwx.kodhe.com/x/v/" + version + "/dhs/dist/dhs")
+			var pack = {version: global.kawix.version}
+
+			try{
+				pack = await KModule.import("https://kwx.kodhe.com/x/std/package.json")
+			}catch(e){
+				console.error("Failed getting last version of std. Using kawix version: ", pack.version, e.message)
+			}
+
+			await KModule.import("https://kwx.kodhe.com/x/v/" + pack.version + "/std/dist/stdlib")
+			await KModule.import("https://kwx.kodhe.com/x/v/" + pack.version + "/kivi/dist/kivi")
+			await KModule.import("https://kwx.kodhe.com/x/v/" + pack.version + "/gix/dist/gix")
+			await KModule.import("https://kwx.kodhe.com/x/v/" + pack.version + "/dhs/dist/dhs")
 
 		}
 	}
 }
 export var start= async function(){
-	var file= module.realPathResolve('main.config')
+	var file= module.realPathResolve('main.config.cluster')
 	return await _start(file)
 }
-export var startStandalone= async function(){
-	var file= module.realPathResolve('main.config.standalone')
+export var startStandalone= async function(single){
+
+	var file= ''
+    if(single){
+        file = module.realPathResolve('main.config.single')
+    }else{
+        file = module.realPathResolve('main.config.default')
+    }
 	return await _start(file)
 }
 export var startClustered= start

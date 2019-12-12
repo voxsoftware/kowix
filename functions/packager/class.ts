@@ -10,6 +10,10 @@ Packager = class Packager {
 		this.dir = dir;
 	}
 
+	cross(path){
+		return path.replace(/\\/g, '/')
+	}
+
 	async compileFile(file, stat, proposedFile) {
 		/*
 		try
@@ -54,6 +58,7 @@ Packager = class Packager {
 			cmp = (await kwcore.KModule.Module.compile(file2, {
 				injectImport: false
 			}));
+			
 			code1 = cmp.code;
 			//if  not file.endsWith ".js"
 			ctx = F.global; //await F.global.getSiteContext("kowix")
@@ -83,7 +88,7 @@ Packager = class Packager {
 		stat.isdirectory = false;
 		stat.isfile = true;
 		stat.contents = contents != null ? contents : "";
-		stat.filename = "/" + this.packagejson.name + "/" + Path.relative(this.dir, proposedFile);
+		stat.filename = "/" + this.packagejson.name + "/" + this.cross(Path.relative(this.dir, proposedFile))
 		this.fileinfo = (ref1 = this.fileinfo) != null ? ref1 : [];
 		return this.fileinfo.push(stat);
 	}
@@ -102,7 +107,7 @@ Packager = class Packager {
 				};
 			}
 		}
-		dirname = "/" + this.packagejson.name + "/" + Path.relative(this.dir, dir);
+		dirname = "/" + this.packagejson.name + "/" + this.cross(Path.relative(this.dir, dir))
 		stat = stat != null ? stat : (await Fs.async.stat(dir));
 		stat.isdirectory = true;
 		stat.isfile = false;

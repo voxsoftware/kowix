@@ -33,7 +33,7 @@ export class Program{
 
     public static async main(args?: string[]): Promise<void> {
         try{
-
+            
             if (!process.env.PROJECTS_DIR){
                 process.env.PROJECTS_DIR = Path.dirname(kawix.mainFilename)
                 //console.log(process.env.PROJECTS_DIR)
@@ -52,11 +52,11 @@ export class Program{
 
                 var respuesta = await this.readLineAsync()
                 if(respuesta == "1"){
-                    let file = process.env.KOWIX_PREVIOUS_RESPONSE = Path.join(__dirname, "start.standalone")
+                    let file = process.env.KOWIX_PREVIOUS_RESPONSE = Path.join(__dirname, "start.default")
                     return await import(file)
                     
                 } else if (respuesta == "2") {
-                    let file = process.env.KOWIX_PREVIOUS_RESPONSE = Path.join(__dirname, "start")
+                    let file = process.env.KOWIX_PREVIOUS_RESPONSE = Path.join(__dirname, "start.cluster")
                     return await import(file)
                     
                 } else if (respuesta == "3") {

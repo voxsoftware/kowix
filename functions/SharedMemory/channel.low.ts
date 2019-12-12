@@ -1,15 +1,96 @@
-var Channel, F, version;
+var F, version;
 
 import Cluster from 'cluster';
-
+import { EventEmitter } from 'events'
 version = '0.0.2';
 
-Channel = class Channel {
+export class Channel {
 	constructor() {}
 
-	//@locks= {}
-	//@locksTasks= {}
-	//@id= 0
+	ctx: any 
+	locks: any 
+	_autoDelete: any 
+	locksTasks: any
+	_changes : any 
+	Events: EventEmitter 
+
+	
+	attachChanges(){
+		let id = F.global.uniqid()
+		this._changes[id] = {
+			current: [],
+			resolve: null,
+			reject: null,
+			task: null 
+		}
+		return id
+	}
+	
+	stopChanges(id){
+		let changer = this._changes[id]
+		if(changer){
+			delete changer.task
+			delete changer.reject
+			delete changer.resolve
+			delete changer.current
+		}
+		delete this._changes[id]
+	}
+
+	getChanges(id){
+		let changer = this._changes[id]
+		let changes = []
+		if(changer.current.length){
+			while(true){
+				changes.push(changer.current.shift())
+				if(changer.current.length == 0)	break 
+			}
+			return changes 
+		}
+
+		return changer.task = new Promise(function(a,b){
+			changer.resolve = function(){
+				delete changer.reject
+				delete changer.resolve
+				delete changer.task 
+				let changes = []
+				while (true) {
+					changes.push(changer.current.shift())
+					if (changer.current.length == 0) break
+				}
+				a(changes)
+			}
+			changer.reject = function(e){
+				delete changer.reject
+				delete changer.resolve 
+				delete changer.task 
+				b(e)
+			}
+		})
+	}
+
+	__addChange(name, value){
+		let ev = {
+			name,
+			value,
+			time: Date.now()
+		}
+
+		
+		if(this.Events) return this.Events.emit("change", ev)
+		for(let id in this._changes){
+			this._changes[id] .current.push(ev)
+		}
+
+		for (let id in this._changes) {
+			try{
+				if(this._changes[id].resolve)
+					this._changes[id].resolve()
+			}catch(e){}
+		}
+	}
+	
+	
 	async setSiteContext(site) {
 		var ref, ref1, ref2, ref3;
 		this.ctx = (await F.global.getSiteContext(site));
@@ -56,7 +137,8 @@ Channel = class Channel {
 			id: id,
 			timeout: timeout,
 			expires: expires,
-			expire_timeout: e
+			expire_timeout: e,
+			varname: varname
 		};
 		this.locks[varname] = lock;
 		return {
@@ -67,20 +149,22 @@ Channel = class Channel {
 	}
 
 	unlock(lock) {
-		var keys, task, v;
-		v = this.locks[varname];
+
+		var keys, task, v
+		var varname = lock.varname
+		v = this.locks[varname]
 		if (!v || (v.id !== (lock != null ? lock.id : void 0))) {
 			F.global.Exception.create("Failed removing lock. You have not locked").putCode("PERMISSION_DENIED");
 		}
 		if (v.expire_timeout) {
-			clearTimeout(v.expire_timeout);
+			clearTimeout(v.expire_timeout)
 		}
-		delete this.locks[varname];
+		delete this.locks[varname]
 		if (this.locksTasks[varname]) {
-			keys = Object.keys(this.locksTasks[varname]);
-			task = this.locksTasks[varname][keys[0]];
-			delete this.locksTasks[varname][keys[0]];
-			return task.finish();
+			keys = Object.keys(this.locksTasks[varname])
+			task = this.locksTasks[varname][keys[0]]
+			delete this.locksTasks[varname][keys[0]]
+			return task.finish()
 		}
 	}
 
@@ -95,89 +179,93 @@ Channel = class Channel {
 
 	disableAutoDelete({prefix}) {
 		if (!prefix && arguments[0]) {
-			prefix = arguments[0];
+			prefix = arguments[0]
 		}
 		// automáticamente elimina 
-		return delete this._autoDelete[prefix];
+		return delete this._autoDelete[prefix]
 	}
 
 	async autoDelete(config) {
-		var i, j, keys, range, ref, results, val;
-		config.deleting = true;
+		var i, j, keys, range, ref, results, val
+		config.deleting = true
+
 		try {
-			await core.VW.Task.sleep(10000);
-			val = this.get(config.prefix);
+			await core.VW.Task.sleep(10000)
+			val = this.get(config.prefix)
 			if (val && typeof val === "object") {
-				keys = Object.keys(val);
+				keys = Object.keys(val)
 				if (keys.length > config.maxCount) {
-					range = Math.max(config.range, keys.length - config.maxCount);
-					results = [];
+					range = Math.max(config.range, keys.length - config.maxCount)
+					results = []
 					for (i = j = 0, ref = range; (0 <= ref ? j < ref : j > ref); i = 0 <= ref ? ++j : --j) {
-						results.push(delete val[keys[i]]);
+						results.push(delete val[keys[i]])
 					}
-					return results;
+					return results
 				}
 			}
 		} catch (error) {
 
 		} finally {
-			config.deleting = false;
+			config.deleting = false
 		}
 	}
 
 	get(varname) {
-		var j, len, o, part, parts;
-		parts = varname.split(".");
-		o = this.ctx.publicContext;
+		var j, len, o, part, parts
+		parts = varname.split(".")
+		o = this.ctx.publicContext
 		if (parts.length > 0) {
 			for (j = 0, len = parts.length; j < len; j++) {
-				part = parts[j];
+				part = parts[j]
 				if (part) {
-					o = o[part];
+					o = o[part]
 					if (!o) {
-						return o;
+						return o
 					}
 				}
 			}
 		}
-		return o;
+		return o
 	}
 
 	set(varname, value) {
-		var i, j, len, o, part, parts, prefix, ref, ref1, results, val;
-		parts = varname.split(".");
+		var i, j, len, o, part, parts, prefix, ref, ref1, results, val
+		parts = varname.split(".")
 		if (parts.length > 0) {
-			o = this.ctx.publicContext;
+			o = this.ctx.publicContext
 			for (i = j = 0, len = parts.length; j < len; i = ++j) {
-				part = parts[i];
+				part = parts[i]
 				if (i !== (parts.length - 1)) {
-					o = o[part] = (ref = o[part]) != null ? ref : {};
+					o = o[part] = (ref = o[part]) != null ? ref : {}
 				}
 			}
-			o[parts[parts.length - 1]] = value;
+			o[parts[parts.length - 1]] = value
+
+			// document the change
+			this.__addChange(varname, value)
 		}
-		ref1 = this._autoDelete;
-		results = [];
+		ref1 = this._autoDelete
+		results = []
 		for (prefix in ref1) {
-			val = ref1[prefix];
+			val = ref1[prefix]
 			if (!val.deleting) {
 				if (varname === prefix || varname.startsWith(prefix + ".")) {
-					results.push(this.autoDelete(val));
+					results.push(this.autoDelete(val))
 				} else {
-					results.push(void 0);
+					results.push(void 0)
 				}
 			} else {
-				results.push(void 0);
+				results.push(void 0)
 			}
 		}
-		return results;
+		return results
 	}
 
 	invokeMethod(method, body) {
-		return this.ctx.userFunction(method).invoke(body);
+		return this.ctx.userFunction(method).invoke(body)
 	}
 
-};
+}
 
 F = function(body) {
 	var global;

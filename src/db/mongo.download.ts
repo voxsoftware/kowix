@@ -143,7 +143,15 @@ export var invoke = async function(ctx, config) {
 		if (config.cachesize) {
 			mem = config.cachesize;
 		} else {
-			mem = Math.max(Os.freemem() - (2300 * mb), 384 * mb) / 3;
+
+			// see if is configured on host
+			var memconfig_ = mongodatadir + ".mem"
+			if(fs.existsSync(memconfig_)){
+				mem = parseInt(await fs.readFileAsync(memconfig_,'utf8'))
+			}
+			else{
+				mem = Math.max(Os.freemem() - (2300 * mb), 384 * mb) / 3
+			}
 		}
 		mem = (mem / gb).toFixed(2);
 		uargs.push("--wiredTigerCacheSizeGB");
